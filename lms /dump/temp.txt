@@ -1,0 +1,500 @@
+if (typeof req.cookie.loggedin !== 'undefined' && req.cookie.loggedin == true) {
+
+      res.writeHead(200, {'Content-Type': 'text/html'});
+      res.write('<script language="javascript">');
+      res.write('window.open('profile.php','_self')');
+
+      res.end(</script>);
+		}
+
+    if (
+         typeof req.body.reg !== 'undefined'  &&
+
+      )
+//db connect
+      var con = mysql.createConnection(db.dbconn());
+      con.connect(function(err) {
+        if (err) throw err;
+        console.log("db lms Connected!");
+
+        var sql = "SELECT * FROM users WHERE user_email=?";
+        con.query(sql, [email, MD5pass], function(err, data) {
+          if (err) throw err;
+
+        });
+      });
+
+      -------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+//redirects to login page if user is not yet logged in
+
+      if (typeof req.cookie.loggedin !== 'undefined' && req.cookie.loggedin == false)  {
+      res.writeHead(200, {'Content-Type': 'text/html'});
+      res.write('<script language="javascript">');
+      res.write('window.open(\'index.php\',\'_self\');');
+      res.write('</script>');
+      res.end();
+      }
+//COOKIE username is global here
+      	var username= req.cookie.username;
+
+
+
+
+
+      //For Adding Bookcases
+
+      if (typeof req.body.ADDBCASE    !== 'undefined' &&
+          typeof req.body.BOOKCASE    !== 'undefined' &&
+          typeof req.body.SHELFCOUNT  !== 'undefined' &&
+          typeof req.body.SHELFCAP    !== 'undefined' &&
+                 req.body.BOOKCASE    != ''           &&
+                 req.body.SHELFCOUNT  != ''           &&
+                 req.body.SHELFCAP    != ''        ) {
+
+      	var username= req.cookie.username;
+        var bookcase= req.cookie.BOOKCASE;
+        var shelf_count= req.cookie.SHELFCOUNT;
+        var shelf_cap= req.cookie.SHELFCAP;
+
+
+
+        var con = mysql.createConnection(db.dbconn());
+        con.connect(function(err) {
+          if (err) throw err;
+          console.log("db // Connected!");
+
+          var sql = "INSERT INTO bookcases  (user_email, bookcase, shelf_count,shelf_cap)VALUES (?,?, ?,?)";
+          con.query(sql, [username,bookcase,shelf_count,shelf_cap], function(err, data) {
+            if (err) throw err;
+            console.log('record created in // ');
+          });
+        });
+
+
+
+      //for adding books
+
+      if (typeof req.body.ADDBOOK  !== 'undefined'  &&
+          typeof req.body.D1 !== 'undefined'        &&
+          typeof req.body.D2  !== 'undefined'       &&
+          typeof req.body.D3  !== 'undefined'       &&
+          typeof req.body.D4  !== 'undefined'       &&
+          typeof req.body.D5  !== 'undefined'       &&
+          typeof req.body.D6  !== 'undefined'  )
+      {
+
+      	if( req.body.D2 != ''       &&
+            req.body.D3 != ''       &&
+            req.body.D4 != ''       &&
+            req.body.D5 != ''       &&
+            req.body.D6 != ''       &&
+    		    req.body.D2 != 'Title'  &&
+            req.body.D3 != 'Author' &&
+            req.body.D4 != 'Genre'  &&
+            req.body.D5 != 'ISBN'   &&
+            req.body.D6 != 0  ) {
+
+          //list[0]->bookcase,   list[1]->shelf_id
+
+      		var list = lib.explode("-", req.body.D1, 2);
+          var bookcase = list[0];
+          var shelf_id = list[1];
+          console.log ('shelf_id :'+shelf_id);
+          var title  =req.body.D2;
+      		var author =req.body.D3;
+      		var gener  =req.body.D4;
+      		var isbn   =req.body.D5;
+      		var price  =req.body.D6;
+
+
+
+      			//For checking if the shelf is full or not
+            var con = mysql.createConnection(db.dbconn());
+
+            con.connect(function(err) {
+              if (err) throw err;
+              console.log("db // 1 Connected!");
+
+              var sql = "SELECT * FROM books  WHERE user_email=? and bookcase=? and shelf_id=?"
+              con.query(sql, [username, bookcase,shelf_id], function(err, data) {
+                if (err) throw err;
+                var count=data.length;
+              });
+
+              var sql = "SELECT shelf_cap FROM   bookcases  WHERE  user_email=? and bookcase=?"  ;
+              con.query(sql, [username, bookcase], function(err, data) {
+                if (err) throw err;
+                var limit= data[0].shelf_cap;
+                console.log('limit: '+limit);
+              });
+
+              if(count>=limit){
+              res.writeHead(200, {'Content-Type': 'text/html'});
+              res.write('<script language="javascript">');
+              res.write('alert("This Shelf is full! Try other Shelfs.")');
+              res.write('</script>');
+              res.end();
+
+        			}
+              //end of checking if the shelf is full
+        			else{
+
+        					 sql = "INSERT INTO books  (user_email,bookcase, shelf_id, title,author,gener,isbn,price)VALUES (?,?,?,?,?,?,?,?) ";
+                  con.query(sql, [username, bookcase,shelf_id,title,author,gener,isbn,price], function(err, data) {
+                    if (err) throw err;
+                    if( data.affectedRows)
+                    console.log('New record created successfully');
+
+                  });
+              }
+        	}
+        });
+
+
+      //for deleting bookcase
+      if (typeof req.body.DELBOOKCASE  !== 'undefined') &&
+          typeof req.body.del  !== 'undefined')         &&
+          typeof req.body.del  != '' )
+          {
+
+          var str=req.body.del;
+      		var bookcase=str.trim();
+
+      		var username=req.cookie.username;
+
+          var con = mysql.createConnection(db.dbconn());
+          con.connect(function(err) {
+            if (err) throw err;
+            console.log("db // 3 Connected!");
+
+            var sql = "UPDATE  books SET bookcase=? where  user_email=? AND bookcase=?";
+            con.query(sql, [heap, username,bookcase], function(err, data) {
+              if (err) throw err;
+              if( data.affectedRows){}
+
+            });
+
+             sql = DELETE FROM bookcases WHERE user_email=? AND bookcase=?;
+            con.query(sql, [username,bookcase], function(err, data) {
+              if (err) throw err;
+              if( data.affectedRows){console.log('deleted1!');}
+
+            });
+          });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      res.write('<html lang="en-US">
+      <head>
+        <meta charset="utf-8">
+        <meta http-equiv="Content-Type" content="text/html">
+        <title>User Profile</title>
+        <link rel="stylesheet" type="text/css" media="all" href="css/styles_profile.css">
+        <script type="text/javascript" src="js/jquery-1.10.2.min.js"></script>
+      </head>
+
+      <body>
+        <div id="topbar">
+        <a  href="logout.php"  style="float: right;margin-right:30px;">Log Out</a>
+        </div>
+
+        <div id="w">
+          <div id="content" class="clearfix">
+            <h1> User Profile </h1>
+            <nav id="profiletabs">
+              <ul class="clearfix">
+                <li><a href="#activity">Bookcases</a></li>
+                <li><a href="#friends">Heaps</a></li>
+                <li><a href="#settings">Profile</a></li>
+              </ul>
+            </nav>
+
+
+      <!-- BookCases -->
+      <section id="activity">
+
+
+
+      <div class="title_box" >
+      <div id="title"><b>Add BookCase <b></div>
+      <div id="content">
+
+      						<!-- Form for Adding Bookcases -->
+      						<table width="50%" border="1" cellpadding="1" cellspacing="1" class="test">
+      						  <tr>
+      							<td>Bookcase Name</td>
+      							<td>Shelf Count</td>
+      							<td>Shelf Capacity</td>
+      						  </tr>
+      						  <form method="post"  action="">
+      						  <tr>
+      							<td><input type="text" class="txtbox" value="" name="BOOKCASE" /></td>
+      							<td><input type="text" class="txtbox" value="" name="SHELFCOUNT" /></td>
+      							<td><input type="text" class="txtbox" value="" name="SHELFCAP"/></td>
+      							<td><input type="submit" value="Add" name="ADDBCASE" /></td>
+      						  </tr>
+      						  </form>
+      						</table>
+
+
+
+
+      						<!-- Table for Bookcase -->
+      						<form method="post"  action="">
+      						<table class="hovertable">
+      							<tr>
+      								<th>Bookcase Name</th><th>Shelf Count</th><th>Shelf Capacity</th><th>   </th>
+      							</tr>
+
+      						<?php
+      						//Dynamically filling Data into the Table Bookcase
+      						$result = mysqli_query($conn,  "SELECT * FROM   bookcases  WHERE  user_email = '$username' " );
+      						if (!$result) {
+      							echo "Could not successfully run query ($sql) from DB: " . mysql_error();
+      							exit;
+      						}
+      						if (!mysqli_num_rows($result)) {
+      							echo "No rows found";
+      						}
+      						else{
+      							while ($row = mysqli_fetch_assoc($result)) {
+      							$a= $row["bookcase"];
+      							$b= $row["shelf_count"];
+      							$c= $row["shelf_cap"];
+
+      							echo " <tr onmouseover=\"this.style.backgroundColor='#ffff66';\" onmouseout=\"this.style.backgroundColor='#d4e3e5';\"> ";
+      							echo "<td>$a</td>";
+      							echo "<td>$b</td>";
+      							echo "<td>$c</td>";
+      							echo "<td><input name='del' type=\"radio\" value=\" $a \"></td>";
+      							echo "</tr>";
+      							}
+      						}
+      						?>
+      						</table>
+      						<input type="submit" value="Delete BookCase" name="DELBOOKCASE" />
+      						</form>
+      </div>
+
+
+      <!-- Form for Adding Books  -->
+      <div class="title_box" >
+      <div id="title"><b>Add Books to Your BookCase<b></div>
+      <div id="content">
+
+      									<form method="post"  action="">
+      									<table width="70%" border="1" cellpadding="1" cellspacing="1" class="test">
+      									  <tr>
+      										<td>Select Book Case</td>
+      									  </tr>
+
+      									  <tr>
+      										<td>
+      										 <select  name="D1" style="width: 142px"  >
+      										 <?php
+      											//Dynamically filling the combo box  with Bookcases
+      											$result = mysqli_query($conn,  "SELECT * FROM   bookcases  WHERE  user_email = '$username' " );
+      											if ($result  && mysqli_num_rows($result) ) {
+      												while ($row = mysqli_fetch_assoc($result)) {
+      													$b= $row["bookcase"];
+      													$c= $row["shelf_count"];
+      													for($i=1;$i<=$c;$i++){
+      														echo " <option value=\"$b-$i\">$b , Shelf $i </option> ";
+      													}
+      												}
+      										}
+      										?>
+      										</select>
+      										</td>
+
+      										<td><input name="D2" value="Title" onfocus="if (this.value == 'Title') this.value=''"/></td>
+      										<td><input name="D3" value="Author" onfocus="if (this.value == 'Author') this.value=''"/></td>
+      									  </tr>
+
+      									  <tr>
+      										<td><input name="D4" value="Genre" onfocus="if (this.value == 'Genre') this.value=''"/></td>
+      										<td><input name="D5" value="ISBN" onfocus="if (this.value == 'ISBN') this.value=''"/></td>
+      										<td><input name="D6" value="Last Price" onfocus="if (this.value == 'Last Price') this.value=''"/></td>
+      									  </tr>
+      									  <tr>
+      									  <td><input type="submit" value="Add" style="width:142px; margin-top: 10px;margin-bottom: 10px;  " name="ADDBOOK" /></td>
+      									  </tr>
+
+      									</table>
+      									</form>
+
+
+
+
+
+
+      									<!-- Table For the Books -->
+      									<table class="hovertable"    style="width:570px;">
+      									<tr><th>Bookcase</th><th>Shelf_ID</th><th> Title  </th><th>Author   </th><th> Gener  </th><th>ISBN   </th><th> Price  </th></tr>
+
+      									<?php
+      									//filling data into the table Books
+      									$result = mysqli_query($conn,  "SELECT * FROM   books   WHERE  user_email = '$username' and bookcase NOT LIKE 'heap'  order by bookcase " );
+
+      									if (!$result) {
+      										echo "Could not successfully run query ($sql) from DB: " . mysql_error();
+      										exit;
+      									}
+      									if (!mysqli_num_rows($result)) {
+      										echo "No rows found.";
+
+      									}
+      									else{
+      										while ($row = mysqli_fetch_assoc($result)) {
+
+      										$a= $row["bookcase"];
+      										$b= $row["shelf_id"];
+      										$c= $row["title"];
+      										$d= $row["author"];
+      										$e= $row["gener"];
+      										$f= $row["isbn"];
+      										$g= $row["price"];
+
+      										echo " <tr onmouseover=\"this.style.backgroundColor='#ffff66';\" onmouseout=\"this.style.backgroundColor='#d4e3e5';\"> ";
+      										echo "<td>$a</td>";
+      										echo "<td>$b</td>";
+      										echo "<td>$c</td>";
+      										echo "<td>$d</td>";
+      										echo "<td>$e</td>";
+      										echo "<td>$f</td>";
+      										echo "<td>$g</td>";
+      										echo "</tr>";
+
+      										}
+      									}
+      									?>
+      									</table>
+
+      </div>
+
+
+
+      	  </section>
+
+
+
+
+       <!-- Heap -->
+       <section id="friends" class="hidden">
+
+
+
+      <div class="title_box" >
+          <div id="title"><b>Heap<b></div>
+          <div id="content">
+
+      						 <!-- Table for Heap -->
+      						<table class="hovertable">
+      						<tr><th> Title  </th><th>Author   </th><th> Gener  </th><th>ISBN   </th><th> Price  </th></tr>
+
+      						<?php
+      						//fill data in table heap dynamically
+      						$result = mysqli_query($conn,  "SELECT * FROM   books   WHERE  user_email = '$username' AND bookcase='heap' " );
+
+      						if (!$result) {
+      							echo "Could not successfully run query ($sql) from DB: " . mysql_error();
+      							exit;
+      						}
+      						if (!mysqli_num_rows($result)) {
+      							echo "No rows found";
+
+      						}
+      						else{
+      							while ($row = mysqli_fetch_assoc($result)) {
+      							$c= $row["title"];
+      							$d= $row["author"];
+      							$e= $row["gener"];
+      							$f= $row["isbn"];
+      							$g= $row["price"];
+
+      							echo " <tr onmouseover=\"this.style.backgroundColor='#ffff66';\" onmouseout=\"this.style.backgroundColor='#d4e3e5';\"> ";
+      							echo "<td>$c</td>";
+      							echo "<td>$d</td>";
+      							echo "<td>$e</td>";
+      							echo "<td>$f</td>";
+      							echo "<td>$g</td>";
+      							echo "</tr>";
+
+      							}
+      						}
+      						?>
+      						</table>
+      			</div>
+            </section>
+
+
+             <!-- About Me -->
+            <section id="settings" class="hidden">
+              <p>Your Details</p>
+              <?php
+
+      			$q1 = mysqli_query($conn, "SELECT * FROM books  WHERE user_email=\"$username\"  and  bookcase not like \"heap\" "  ) ;
+          		$count1=mysqli_num_rows($q1) ;
+
+      			$q1 = mysqli_query($conn, "SELECT * FROM books  WHERE user_email=\"$username\"  and  bookcase like  \"heap\" "  ) ;
+          		$count2=mysqli_num_rows($q1) ;
+
+      			$q1 = mysqli_query($conn, "SELECT * FROM books  WHERE user_email=\"$username\"  "  ) ;
+          		$count3=mysqli_num_rows($q1) ;
+
+      		?>
+
+
+              <p class="setting"><span>E-mail Address </span><?php echo $username; ?></p>
+
+              <p class="setting"><span>Number of Books in BookCase  </span> <?php echo $count1 ?></p>
+
+              <p class="setting"><span>Number of Books in Heap  </span> <?php echo $count2 ?></p>
+
+              <p class="setting"><span>Total Number of Books  </span> <?php echo $count3 ?></p>
+
+            </section>
+          </div><!-- @end #content -->
+        </div><!-- @end #w -->
+
+
+      <script type="text/javascript">
+      $(function(){
+        $('#profiletabs ul li a').on('click', function(e){
+          e.preventDefault();
+          var newcontent = $(this).attr('href');
+
+          $('#profiletabs ul li a').removeClass('sel');
+          $(this).addClass('sel');
+
+          $('#content section').each(function(){
+            if(!$(this).hasClass('hidden')) { $(this).addClass('hidden'); }
+          });
+
+          $(newcontent).removeClass('hidden');
+        });
+      });
+      </script>
+
+
+      </body>
+      </html>

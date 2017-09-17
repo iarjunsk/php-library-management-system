@@ -1,0 +1,62 @@
+html
+  head
+    meta(charset='UTF-8')
+    title Login/Sign-In
+    link(rel='stylesheet', href='./css/normalize.css')
+    link(rel='stylesheet', href='http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css')
+    link(rel='stylesheet', href='./css/style.css')
+    script=js_alert_src
+
+  body
+    .logmod
+      .logmod__wrapper
+        .logmod__container
+          ul.logmod__tabs
+            li(data-tabtar='lgm-2')
+              a(href='#') Login
+            li(data-tabtar='lgm-1')
+              a(href='#') Sign Up
+          .logmod__tab-wrapper
+            .logmod__tab.lgm-1
+              .logmod__heading
+                span.logmod__heading-subtitle
+                  | Enter your personal details 
+                  strong to create an acount
+              .logmod__form
+                form.simform(method='post', accept-charset='utf-8', action='/reg')
+                  .sminputs
+                    .input.full
+                      label.string.optional(for='user-name') Email*
+                      input#user-email.string.optional(name='user', maxlength='255', placeholder='Email', type='email', size='50')
+                  .sminputs
+                    .input.string.optional
+                      label.string.optional(for='user-pw') Password *
+                      input#user-pw.string.optional(name='pass', maxlength='255', placeholder='Password', type='password', size='50')
+                    .input.string.optional
+                      label.string.optional(for='user-pw-repeat') Repeat password *
+                      input#user-pw-repeat.string.optional(name='RepeatPass', maxlength='255', placeholder='Repeat password', type='password', size='50')
+                  .simform__actions
+                    input.sumbit(name='reg', type='submit', value='Create Account')
+                  span.simform__actions-sidetext
+                    a.special(href='#', target='_blank', role='link')
+            .logmod__tab.lgm-2
+              .logmod__heading
+                span.logmod__heading-subtitle
+                  | Enter your email and password 
+                  strong to sign in
+              .logmod__form
+                form.simform(accept-charset='utf-8', method='post', action='/login_script')
+                  .sminputs
+                    .input.full
+                      label.string.optional(for='user-name') Email*
+                      input#user-email.string.optional(name='email', maxlength='255', placeholder='Email', type='email', size='50')
+                  .sminputs
+                    .input.full
+                      label.string.optional(for='user-pw') Password *
+                      input#user-pw.string.optional(name='pass', maxlength='255', placeholder='Password', type='password', size='50')
+                      span.hide-password Show
+                  .simform__actions
+                    input.sumbit(name='login', type='submit', value='Log In')
+                    span.simform__actions-sidetext
+    script(src='http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js')
+    script(src='./js/index.js')
